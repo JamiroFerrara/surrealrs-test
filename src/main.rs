@@ -9,15 +9,8 @@ fn main () -> Result<(), std::io::Error> {
 
 #[tokio::main]
 async fn tokio_main() {
-    let person = Person {
-        name: "John".to_string(),
-        age: 20,
-    };
-    println!("Adding person.. {:?}", person);
-    match person.insert().await {
-        Ok(_) => println!("Person added!"),
-        Err(e) => println!("Error adding person: {:?}", e),
-    }
-
+    Person::new("Jamiro".to_string(), 25).insert().await.unwrap();
+    Person::new("Alessia".to_string(), 26).insert().await.unwrap();
+    Person::new("Mauro".to_string(), 45).insert().await.unwrap();
     Person::get_all().await.unwrap();
 }
