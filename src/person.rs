@@ -31,6 +31,7 @@ impl Person {
         let _ = client.post("http://localhost:8000/sql")
             .basic_auth("root", Some("root"))
             .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
             .header("NS", "test")
             .header("DB", "test")
             .body(query)
@@ -41,19 +42,19 @@ impl Person {
 
     pub async fn get_all() -> std::result::Result<(), reqwest::Error> {
         let client = reqwest::Client::new();
-        let query = "SELECT * FROM person";
-        let res: Response = client.post("http://localhost:8000/sql")
+        let query = format!("select * from person");
+        let res = client.post("http://localhost:8000/sql")
             .basic_auth("root", Some("root"))
             .header("Content-Type", "application/json")
+            .header("Accept", "application/json")
             .header("NS", "test")
             .header("DB", "test")
             .body(query)
             .send()
             .await?;
 
-        let root: Root = res.json().await?;
-        println!("Response: {:#?}", root);
-
+        println!("{:?}", res.text().await?);
+        
         Ok(())
     }
 }
