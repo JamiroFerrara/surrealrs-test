@@ -1,16 +1,6 @@
 use reqwest::*;
 use serde::{Deserialize, Serialize};
 
-pub type Root = Vec<Root2>;
-
-#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct Root2 {
-    pub result: Vec<Person>,
-    pub status: String,
-    pub time: String,
-}
-
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Person {
@@ -42,7 +32,7 @@ impl Person {
 
     pub async fn get_all() -> std::result::Result<(), reqwest::Error> {
         let client = reqwest::Client::new();
-        let query = format!("select * from person");
+        let query = "select * from person";
         let res = client.post("http://localhost:8000/sql")
             .basic_auth("root", Some("root"))
             .header("Content-Type", "application/json")
@@ -51,9 +41,12 @@ impl Person {
             .header("DB", "test")
             .body(query)
             .send()
-            .await?;
+            .await?
+            .json::<serde_json::Value>().await?[0]
+            .get("result").unwrap().clone();
 
-        println!("{:?}", res.text().await?);
+        let res = serde_json::from_value::<Vec<Person>>(res).unwrap();
+        println!("{:#?}", res);
         
         Ok(())
     }
